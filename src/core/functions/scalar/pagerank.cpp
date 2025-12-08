@@ -56,7 +56,7 @@ static void PageRankFunction(DataChunk &args, ExpressionState &state, Vector &re
 					auto end_edge = (i + 1 < v_size) ? v[i + 1] : e.size(); // Adjust end_edge
 					auto edge_count = end_edge - start_edge;
 					if (edge_count > 0) {
-						double rank_contrib = info.rank[i] / static_cast<double>(edge_count);
+						double rank_contrib = info.rank[i] / edge_count;
 						for (int64_t j = start_edge; j < end_edge; j++) {
 							int64_t neighbor = e[j];
 							info.temp_rank[neighbor] += rank_contrib;
@@ -72,8 +72,7 @@ static void PageRankFunction(DataChunk &args, ExpressionState &state, Vector &re
 				double max_delta = 0.0;
 				for (size_t i = 0; i < v_size; i++) {
 					info.temp_rank[i] = base_rank + info.damping_factor * (info.temp_rank[i] + correction_factor);
-					double delta = std::abs(info.temp_rank[i] - info.rank[i]);
-					max_delta = std::max(max_delta, delta);
+					max_delta = std::max(max_delta, std::abs(info.temp_rank[i] - info.rank[i]));
 				}
 
 				info.rank.swap(info.temp_rank);
