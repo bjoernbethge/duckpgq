@@ -48,7 +48,7 @@ static void WeaklyConnectedComponentFunction(DataChunk &args, ExpressionState &s
 	}
 
 	// Retrieve CSR data
-	int64_t *v = reinterpret_cast<int64_t *>(duckpgq_state->csr_list[info.csr_id]->v);
+	int64_t *v = reinterpret_cast<int64_t *>(duckpgq_state->csr_list[info.csr_id]->v.get());
 	vector<int64_t> &e = duckpgq_state->csr_list[info.csr_id]->e;
 	size_t v_size = duckpgq_state->csr_list[info.csr_id]->vsize;
 

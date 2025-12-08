@@ -23,7 +23,7 @@ static void PageRankFunction(DataChunk &args, ExpressionState &state, Vector &re
 		throw ConstraintException("Need to initialize CSR before running PageRank.");
 	}
 
-	auto *v = reinterpret_cast<int64_t *>(duckpgq_state->csr_list[info.csr_id]->v);
+	auto *v = reinterpret_cast<int64_t *>(duckpgq_state->csr_list[info.csr_id]->v.get());
 	vector<int64_t> &e = duckpgq_state->csr_list[info.csr_id]->e;
 	size_t v_size = duckpgq_state->csr_list[info.csr_id]->vsize;
 

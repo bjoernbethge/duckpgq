@@ -56,7 +56,7 @@ static void ShortestPathFunction(DataChunk &args, ExpressionState &state, Vector
 	}
 	int64_t v_size = args.data[1].GetValue(0).GetValue<int64_t>();
 
-	auto *v = reinterpret_cast<int64_t *>(csr->v);
+	auto *v = reinterpret_cast<int64_t *>(csr->v.get());
 	vector<int64_t> &e = csr->e;
 	vector<int64_t> &edge_ids = csr->edge_ids;
 
