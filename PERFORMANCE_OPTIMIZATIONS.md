@@ -106,7 +106,7 @@ if (!vdata_src.validity.RowIsValid(id_pos)) {
 ## DuckDB Version Update Process
 
 ### Current Version
-The extension currently targets **DuckDB v1.4.1**.
+The extension currently targets **DuckDB v1.4.2** (latest stable).
 
 ### Steps to Update to Latest Version
 
@@ -158,7 +158,7 @@ The extension currently targets **DuckDB v1.4.1**.
    ```
    
    Edit `.github/workflows/ExtensionTemplate.yml`:
-   - Update all `duckdb_version: [ 'v1.4.1' ]` to `duckdb_version: [ 'v1.X.Y' ]`
+   - Update all `duckdb_version: [ 'v1.4.1' ]` to `duckdb_version: [ 'v1.4.2' ]`
 
 4. **Test for API Compatibility**
    ```bash
