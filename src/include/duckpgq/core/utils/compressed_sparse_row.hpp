@@ -25,11 +25,9 @@ namespace duckdb {
 class CSR {
 public:
 	CSR() = default;
-	~CSR() {
-		delete[] v;
-	}
+	~CSR() = default;
 
-	atomic<int64_t> *v {};
+	unique_ptr<atomic<int64_t>[]> v;
 
 	vector<int64_t> e;
 	vector<int64_t> edge_ids;

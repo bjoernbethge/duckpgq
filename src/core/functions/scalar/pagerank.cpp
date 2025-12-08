@@ -43,40 +43,45 @@ static void PageRankFunction(DataChunk &args, ExpressionState &state, Vector &re
 	if (!info.converged) {
 		std::lock_guard<std::mutex> guard(info.state_lock); // Thread safety
 
-		bool continue_iteration = true;
-		while (continue_iteration) {
-			fill(info.temp_rank.begin(), info.temp_rank.end(), 0.0);
+		// Double-check after acquiring lock to avoid race condition
+		if (!info.converged) {
+			bool continue_iteration = true;
+			while (continue_iteration) {
+				fill(info.temp_rank.begin(), info.temp_rank.end(), 0.0);
 
-			double total_dangling_rank = 0.0; // For dangling nodes
+				double total_dangling_rank = 0.0; // For dangling nodes
 
-			for (size_t i = 0; i < v_size; i++) {
-				auto start_edge = v[i];
-				auto end_edge = (i + 1 < v_size) ? v[i + 1] : e.size(); // Adjust end_edge
-				if (end_edge > start_edge) {
-					double rank_contrib = info.rank[i] / static_cast<double_t>(end_edge - start_edge);
-					for (int64_t j = start_edge; j < end_edge; j++) {
-						int64_t neighbor = e[j];
-						info.temp_rank[neighbor] += rank_contrib;
+				for (size_t i = 0; i < v_size; i++) {
+					auto start_edge = v[i];
+					auto end_edge = (i + 1 < v_size) ? v[i + 1] : e.size(); // Adjust end_edge
+					auto edge_count = end_edge - start_edge;
+					if (edge_count > 0) {
+						double rank_contrib = info.rank[i] / static_cast<double>(edge_count);
+						for (int64_t j = start_edge; j < end_edge; j++) {
+							int64_t neighbor = e[j];
+							info.temp_rank[neighbor] += rank_contrib;
+						}
+					} else {
+						total_dangling_rank += info.rank[i];
 					}
-				} else {
-					total_dangling_rank += info.rank[i];
 				}
-			}
 
-			// Apply damping factor and handle dangling node ranks
-			double correction_factor = total_dangling_rank / static_cast<double>(v_size);
-			double max_delta = 0.0;
-			for (size_t i = 0; i < v_size; i++) {
-				info.temp_rank[i] = (1 - info.damping_factor) / static_cast<double>(v_size) +
-				                    info.damping_factor * (info.temp_rank[i] + correction_factor);
-				max_delta = std::max(max_delta, std::abs(info.temp_rank[i] - info.rank[i]));
-			}
+				// Apply damping factor and handle dangling node ranks
+				double correction_factor = total_dangling_rank / static_cast<double>(v_size);
+				double base_rank = (1 - info.damping_factor) / static_cast<double>(v_size);
+				double max_delta = 0.0;
+				for (size_t i = 0; i < v_size; i++) {
+					info.temp_rank[i] = base_rank + info.damping_factor * (info.temp_rank[i] + correction_factor);
+					double delta = std::abs(info.temp_rank[i] - info.rank[i]);
+					max_delta = std::max(max_delta, delta);
+				}
 
-			info.rank.swap(info.temp_rank);
-			info.iteration_count++;
-			if (max_delta < info.convergence_threshold) {
-				info.converged = true;
-				continue_iteration = false;
+				info.rank.swap(info.temp_rank);
+				info.iteration_count++;
+				if (max_delta < info.convergence_threshold) {
+					info.converged = true;
+					continue_iteration = false;
+				}
 			}
 		}
 	}

@@ -86,9 +86,7 @@ GetColRefExprFromPg(const case_insensitive_map_t<shared_ptr<PropertyGraphTable>>
 	const auto &tbl = iter->second;
 	registered_col_names.reserve(tbl->column_names.size());
 	for (const auto &cur_col : tbl->column_names) {
-		auto new_col_names = vector<string> {"", ""};
-		new_col_names[0] = alias;
-		new_col_names[1] = cur_col;
+		vector<string> new_col_names = {alias, cur_col};
 		registered_col_names.emplace_back(make_uniq<ColumnRefExpression>(std::move(new_col_names)));
 	}
 	return registered_col_names;
@@ -107,9 +105,7 @@ GetColRefExprFromPg(const case_insensitive_map_t<shared_ptr<PropertyGraphTable>>
 		// Skip edge table.
 		registered_col_names.reserve(registered_col_names.size() + tbl->column_names.size());
 		for (const auto &cur_col : tbl->column_names) {
-			auto new_col_names = vector<string> {"", ""};
-			new_col_names[0] = alias;
-			new_col_names[1] = cur_col;
+			vector<string> new_col_names = {alias, cur_col};
 			registered_col_names.emplace_back(make_uniq<ColumnRefExpression>(std::move(new_col_names)));
 		}
 	}
