@@ -48,7 +48,7 @@ static void WeaklyConnectedComponentFunction(DataChunk &args, ExpressionState &s
 	}
 
 	// Retrieve CSR data
-	int64_t *v = reinterpret_cast<int64_t *>(duckpgq_state->csr_list[info.csr_id]->v);
+	int64_t *v = reinterpret_cast<int64_t *>(duckpgq_state->csr_list[info.csr_id]->v.get());
 	vector<int64_t> &e = duckpgq_state->csr_list[info.csr_id]->e;
 	size_t v_size = duckpgq_state->csr_list[info.csr_id]->vsize;
 
@@ -91,7 +91,12 @@ static void WeaklyConnectedComponentFunction(DataChunk &args, ExpressionState &s
 	}
 	// Assign component IDs for the source nodes
 	for (size_t i = 0; i < args.size(); i++) {
-		int64_t src_node = src_data[i];
+		auto id_pos = vdata_src.sel->get_index(i);
+		if (!vdata_src.validity.RowIsValid(id_pos)) {
+			result_validity.SetInvalid(i);
+			continue;
+		}
+		int64_t src_node = src_data[id_pos];
 		if (src_node >= 0 && src_node < v_size) {
 			result_data[i] = FindTreeRoot(info.forest, src_node); // Assign component ID to the result
 		} else {

@@ -21,7 +21,7 @@ static void LocalClusteringCoefficientFunction(DataChunk &args, ExpressionState 
 	if (!(csr_entry->second->initialized_v && csr_entry->second->initialized_e)) {
 		throw ConstraintException("Need to initialize CSR before doing local clustering coefficient.");
 	}
-	int64_t *v = reinterpret_cast<int64_t *>(duckpgq_state->csr_list[info.csr_id]->v);
+	int64_t *v = reinterpret_cast<int64_t *>(duckpgq_state->csr_list[info.csr_id]->v.get());
 	vector<int64_t> &e = duckpgq_state->csr_list[info.csr_id]->e;
 	size_t v_size = duckpgq_state->csr_list[info.csr_id]->vsize;
 	// get src and dst vectors for searches
