@@ -58,7 +58,7 @@ static void ScanCSRPtrFunction(ClientContext &context, TableFunctionInput &data_
 	auto result_data = FlatVector::GetData<uint64_t>(output.data[0]);
 	// now set the result vector
 	// the first element is the address of the vertex array
-	result_data[0] = reinterpret_cast<uint64_t>(csr->v);
+	result_data[0] = reinterpret_cast<uint64_t>(csr->v.get());
 	// the second element is the address of the edge array
 	result_data[1] = reinterpret_cast<uint64_t>(&csr->e);
 	// here we check the type of the weight array
