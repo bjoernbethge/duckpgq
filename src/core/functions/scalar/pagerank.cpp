@@ -56,7 +56,7 @@ static void PageRankFunction(DataChunk &args, ExpressionState &state, Vector &re
 					auto end_edge = (i + 1 < v_size) ? v[i + 1] : e.size(); // Adjust end_edge
 					auto edge_count = end_edge - start_edge;
 					if (edge_count > 0) {
-						double rank_contrib = info.rank[i] / edge_count;
+						double rank_contrib = info.rank[i] / static_cast<double>(edge_count);
 						for (int64_t j = start_edge; j < end_edge; j++) {
 							int64_t neighbor = e[j];
 							info.temp_rank[neighbor] += rank_contrib;

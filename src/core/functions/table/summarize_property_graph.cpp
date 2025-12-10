@@ -274,7 +274,19 @@ SummarizePropertyGraphFunction::HandleSingleVertexTable(const shared_ptr<Propert
 }
 
 void AddToUnionNode(unique_ptr<SetOperationNode> &final_union_node, unique_ptr<SelectNode> &inner_select_node) {
-	final_union_node->children.push_back(std::move(inner_select_node));
+	if (!final_union_node->left) {
+		final_union_node->left = std::move(inner_select_node);
+	} else if (!final_union_node->right) {
+		final_union_node->right = std::move(inner_select_node);
+	} else {
+		// Need to nest: create new union with current as left, new node as right
+		auto new_union = make_uniq<SetOperationNode>();
+		new_union->setop_type = SetOperationType::UNION;
+		new_union->setop_all = true;
+		new_union->left = std::move(final_union_node);
+		new_union->right = std::move(inner_select_node);
+		final_union_node = std::move(new_union);
+	}
 }
 
 unique_ptr<SelectNode> CreateInnerSelectStatNode(const string &stat_table_alias) {

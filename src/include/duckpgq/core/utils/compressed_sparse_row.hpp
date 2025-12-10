@@ -7,6 +7,7 @@
 //===----------------------------------------------------------------------===//
 
 #pragma once
+#include <atomic>
 #include "duckdb/function/function.hpp"
 
 #include "duckdb/parser/expression/cast_expression.hpp"
